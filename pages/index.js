@@ -58,9 +58,20 @@ const createData = (
   complexity,
   platforms,
   users,
-  total
+  total,
+  search
 ) => {
-  return { name, date, service, features, complexity, platforms, users, total };
+  return {
+    name,
+    date,
+    service,
+    features,
+    complexity,
+    platforms,
+    users,
+    total,
+    search
+  };
 };
 
 const ProjectManager = () => {
@@ -76,7 +87,8 @@ const ProjectManager = () => {
       'N/A',
       'N/A',
       'N/A',
-      '$1500'
+      '$1500',
+      true
     ),
     createData(
       'Bill Gate',
@@ -86,7 +98,8 @@ const ProjectManager = () => {
       'N/A',
       'N/A',
       'N/A',
-      '$1500'
+      '$1500',
+      true
     ),
     createData(
       'Testing User',
@@ -96,7 +109,8 @@ const ProjectManager = () => {
       'N/A',
       'N/A',
       'N/A',
-      '$1500'
+      '$1500',
+      true
     )
   ]);
 
@@ -111,6 +125,7 @@ const ProjectManager = () => {
   ];
   const websiteOptions = ['Basic', 'Interactive', 'E-Commerce'];
 
+  const [search, setSearch] = useState('');
   const [websiteChecked, setWebsiteChecked] = useState(false);
   const [iOSChecked, setiOSChecked] = useState(false);
   const [androidCheck, setAndroidChecked] = useState(false);
@@ -136,7 +151,8 @@ const ProjectManager = () => {
         service === 'Website' ? 'N/A' : complexity,
         service === 'Website' ? 'N/A' : platforms.join(', '),
         service === 'Website' ? 'N/A' : users,
-        `$${total}`
+        `$${total}`,
+        true
       )
     ]);
     setDialogOpen(false);
@@ -150,6 +166,29 @@ const ProjectManager = () => {
     setTotal('');
   };
 
+  const handleSearch = e => {
+    setSearch(e.target.value);
+
+    const rowData = rows.map(row =>
+      Object.values(row).filter(option => option !== true && option !== false)
+    );
+
+    const matches = rowData.map(row =>
+      row.map(option =>
+        option.toLowerCase().includes(e.target.value.toLowerCase())
+      )
+    );
+
+    const newRows = [...rows];
+    matches.map((row, index) =>
+      row.includes(true)
+        ? (newRows[index].search = true)
+        : (newRows[index].search = false)
+    );
+
+    setRows(newRows);
+  };
+
   return (
     <MuiPickersUtilsProvider utils={DataFnsUtils}>
       <Grid container direction='column'>
@@ -160,6 +199,8 @@ const ProjectManager = () => {
           <TextField
             placeholder='Search project details or create a new entry.'
             style={{ width: '35em', marginLeft: '5em' }}
+            value={search}
+            onChange={handleSearch}
             InputProps={{
               endAdornment: (
                 <InputAdornment
@@ -246,20 +287,22 @@ const ProjectManager = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {rows.map((row, index) => (
-                  <TableRow key={index}>
-                    <TableCell align='center'>{row.name}</TableCell>
-                    <TableCell align='center'>{row.date}</TableCell>
-                    <TableCell align='center'>{row.service}</TableCell>
-                    <TableCell align='center' style={{ maxWidth: '5em' }}>
-                      {row.features}
-                    </TableCell>
-                    <TableCell align='center'>{row.complexity}</TableCell>
-                    <TableCell align='center'>{row.platforms}</TableCell>
-                    <TableCell align='center'>{row.users}</TableCell>
-                    <TableCell align='center'>{row.total}</TableCell>
-                  </TableRow>
-                ))}
+                {rows
+                  .filter(row => row.search)
+                  .map((row, index) => (
+                    <TableRow key={index}>
+                      <TableCell align='center'>{row.name}</TableCell>
+                      <TableCell align='center'>{row.date}</TableCell>
+                      <TableCell align='center'>{row.service}</TableCell>
+                      <TableCell align='center' style={{ maxWidth: '5em' }}>
+                        {row.features}
+                      </TableCell>
+                      <TableCell align='center'>{row.complexity}</TableCell>
+                      <TableCell align='center'>{row.platforms}</TableCell>
+                      <TableCell align='center'>{row.users}</TableCell>
+                      <TableCell align='center'>{row.total}</TableCell>
+                    </TableRow>
+                  ))}
               </TableBody>
             </Table>
           </TableContainer>
